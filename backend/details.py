@@ -58,3 +58,20 @@ def get_pop_level(po_amount):
         'source': SOURCE_CO,
         'severity': stat
     }
+
+def get_ozone_stat(oz_amount):
+    SOURCE_CO = ''
+    stat = ''
+    if oz_amount > 100:
+        SOURCE_CO = 'Elevated ozone levels can pose health risks, especially for sensitive induviduals, and may indicate poorer air quality'        
+        stat = 'high'
+    elif oz_amount >= 50 and oz_amount <= 100:
+        SOURCE_CO = 'These levels are within acceptable air quality standards and are generally safe for general population'        
+        stat = 'normal'
+    else:           # < 0.00005
+        SOURCE_CO = ' Air quality is generally good and these levels are considered safe for general population'        
+        stat = 'low'
+    return {
+        'source': SOURCE_CO,
+        'severity': stat
+    }

@@ -1,6 +1,6 @@
 from flask import Flask, request
 import ee
-import datetime
+from datetime import datetime
 import requests
 import json
 import math
@@ -17,24 +17,37 @@ ee.Initialize(project='earth-engine-410402')
 def main():
     return 'Hello World'
 
+# Function to create a rectangular polygon around a point
+def create_polygon(latitude, longitude, buffer_size=1.0):
+    point = ee.Geometry.Point(ee.List([longitude, latitude]))
+    buffer_size_meters = ee.Number(buffer_size).multiply(1000)  # Convert buffer size from kilometers to meters
+    return point.buffer(buffer_size_meters).bounds()
+
 @app.route('/getall')
 def get_all():
     latitude = float(request.args.get('lat'))
     longitude = float(request.args.get('long'))
-    co = (get_average_co_level(latitude, longitude, buffer_distance=5000))['res']
+    start_date_in = str(datetime.strptime(request.args.get('std'), '%Y/%m/%d').date())
+    end_date_in = str(datetime.strptime(request.args.get('end'), '%Y/%m/%d').date())
+    
+    print('Start Date: ', str(start_date_in))
+    print('End Date: ', str(end_date_in))
+    
+    poly = create_polygon(latitude, longitude)
+    
+    co = (get_average_co_level(latitude, longitude, buffer_distance=5000, region = poly))['res']
     co_stat = (details.get_co_level(co))
-    so2 = (calculate_so2_level( latitude=latitude, longitude=longitude, start_date='2024-01-01', end_date='2024-01-10'))['res']
+    so2 = (calculate_so2_level( latitude=latitude, longitude=longitude, start_date=start_date_in, end_date=end_date_in, geometry=poly))['res']
     so2_stat = (details.get_so_level(so2))
-    pop = (get_total_population(latitude, longitude))['res']
+    pop = (get_total_population(latitude, longitude, area_of_interest=poly))['res']
     pop_stat = (details.get_pop_level(pop))
-    formal = (get_formaldehyde_level(latitude, longitude))['res']
+    formal = (get_formaldehyde_level(latitude, longitude, location_point = poly))['res']
     form_stat = (details.get_formaldehyde_level(formal))
-    era5 = (get_era5_data( latitude=latitude, longitude=longitude, start_date='2024-01-01', end_date='2024-01-10'))
-    
-    ozone = (get_ozone(latitude, longitude))
-    
-    print(type(co_stat))
-    print(co_stat)
+    era5 = (get_era5_data( latitude=latitude, longitude=longitude, start_date=start_date_in, end_date=end_date_in, point1=poly))
+    ozone = (get_ozone(latitude, longitude, user_polygon=poly, start_date=start_date_in, end_date=end_date_in))
+    # print(ozone)
+    ozone_stat = details.get_ozone_stat(ozone['res'])
+    water = get_water(poly=poly)
     
     return {
         'co': {'value': co, 'etc': co_stat},
@@ -42,21 +55,17 @@ def get_all():
         'population': {'value': pop, 'etc': pop_stat},
         'formaldehyde': {'value': formal, 'etc': form_stat},
         'era5': {'value': era5, 'etc': 'NA'},
-        'ozone': {'value': ozone, 'etc': 'NA'}
+        'ozone': {'value': ozone, 'etc': ozone_stat},
+        'water': {'value': water}
     }
     
-# Function to create a rectangular polygon around a point
-def create_polygon(latitude, longitude, buffer_size=1.0):
-    point = ee.Geometry.Point(ee.List([longitude, latitude]))
-    buffer_size_meters = ee.Number(buffer_size).multiply(1000)  # Convert buffer size from kilometers to meters
-    return point.buffer(buffer_size_meters).bounds()
 
-def get_average_co_level(latitude, longitude, buffer_distance):
-    # Create a point for the user input location
-    point = ee.Geometry.Point(ee.List([longitude, latitude]))
+def get_average_co_level(latitude, longitude, buffer_distance, region):
+    # # Create a point for the user input location
+    # point = ee.Geometry.Point(ee.List([longitude, latitude]))
     
-    # Create a rectangular buffer around the point
-    region = point.buffer(buffer_distance)
+    # # Create a rectangular buffer around the point
+    # region = point.buffer(buffer_distance)
     
     # Load the Sentinel-5P Carbon Monoxide dataset
     s5p_co_dataset = ee.ImageCollection("COPERNICUS/S5P/NRTI/L3_CO")
@@ -81,9 +90,7 @@ def get_average_co_level(latitude, longitude, buffer_distance):
     return {'res': co_value[co_band]}
 
 # Function to calculate average SO2 level for a given geometry and time range
-def calculate_so2_level(latitude, longitude, start_date, end_date):
-    # Load Sentinel-5P data
-    geometry = create_polygon(latitude, longitude)
+def calculate_so2_level(latitude, longitude, start_date, end_date, geometry):
     
     s5p_dataset = ee.ImageCollection('COPERNICUS/S5P/OFFL/L3_SO2') \
         .filterBounds(geometry) \
@@ -102,12 +109,12 @@ def calculate_so2_level(latitude, longitude, start_date, end_date):
     return {'res': so2_level.get('SO2_column_number_density')}
 
 # Function to get total population for a given region
-def get_total_population(latitude, longitude):
+def get_total_population(latitude, longitude, area_of_interest):
     # Create a point for the given latitude and longitude
-    point = ee.Geometry.Point(ee.List([longitude, latitude]))
+    # point = ee.Geometry.Point(ee.List([longitude, latitude]))
     
-    # Create a large rectangular polygon around the point
-    area_of_interest = point.buffer(100000)  # Buffer of 100 km around the point
+    # # Create a large rectangular polygon around the point
+    # area_of_interest = point.buffer(100000)  # Buffer of 100 km around the point
     
     # Load WorldPop population data
     population_dataset = ee.ImageCollection("WorldPop/GP/100m/pop")
@@ -127,9 +134,9 @@ def get_total_population(latitude, longitude):
     return {'res': total_population}
 
 # Function to retrieve formaldehyde level for a specified location
-def get_formaldehyde_level(latitude, longitude):
+def get_formaldehyde_level(latitude, longitude, location_point):
     # Create a point for the specified location
-    location_point = ee.Geometry.Point(ee.List([longitude, latitude]))
+    # location_point = ee.Geometry.Point(ee.List([longitude, latitude]))
 
     # Load Sentinel-5P data
     s5p_dataset = ee.ImageCollection('COPERNICUS/S5P/OFFL/L3_NO2') \
@@ -166,7 +173,7 @@ def findWindDirection(u_component, v_component):
     return direction
 
 # Function to retrieve surface temperature, precipitation, and wind
-def get_era5_data(latitude, longitude, start_date, end_date):
+def get_era5_data(latitude, longitude, start_date, end_date, point1):
     # Create a point geometry for the location
     point = ee.Geometry.Point(ee.List([longitude, latitude]))
 
@@ -195,10 +202,10 @@ def get_era5_data(latitude, longitude, start_date, end_date):
     }
 
     
-def get_ozone(latitude, longitude):
-    user_polygon = create_polygon(latitude, longitude, buffer_size=1.0)
-    start_date = '2022-01-01'
-    end_date = '2022-01-31'
+def get_ozone(latitude, longitude, user_polygon, start_date, end_date):
+    # user_polygon = create_polygon(latitude, longitude, buffer_size=1.0)
+    # start_date = '2022-01-01'
+    # end_date = '2022-01-31'
 
     s5p_ozone_dataset = ee.ImageCollection('COPERNICUS/S5P/NRTI/L3_O3') \
         .filterBounds(user_polygon) \
@@ -223,3 +230,23 @@ def get_ozone(latitude, longitude):
     else:
         # return {'status': False, 'ozone': 'Na'}
         return None
+
+def get_water(poly):
+    # point = ee.Geometry.Point(lon, lat)
+
+    grace_dataset = ee.ImageCollection("NASA/GRACE/MASS_GRIDS/LAND") \
+        .filterBounds(poly) \
+        .select('lwe_thickness_csr') 
+    vis_params = {
+        'min': -50,  # minimum value for visualization
+        'max': 50,   # maximum value for visualization
+        'palette': ['blue', 'white', 'red']  # color palette
+    }
+
+    mean_value = grace_dataset.mean().reduceRegion(
+        reducer=ee.Reducer.mean(),
+        geometry=poly,
+        scale=5000  # Resolution in meters
+    ).getInfo()
+
+    return {'res': mean_value}

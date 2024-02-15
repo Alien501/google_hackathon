@@ -1,0 +1,56 @@
+{
+    "co": {
+      "etc": {
+        "severity": "normal",
+        "source": "The presence of CO, SO2, and formaldehyde could indicate pollution from sources like traffic, industry"
+      },
+      "value": 0.03514418993330871
+    },
+    "era5": {
+      "etc": "NA",
+      "value": {
+        "res": {
+          "temperature": 298.82645481236796,
+          "total_precipitation": 0.0016209415393716054,
+          "wind_direction": "West"
+        }
+      }
+    },
+    "formaldehyde": {
+      "etc": {
+        "severity": "low",
+        "source": "Formaldehyde is a volatile organic compound that can be emitted from various sources, including combustion processes and certain industrial activities"
+      },
+      "value": 3.463650203381777e-05
+    },
+    "ozone": {
+      "etc": {
+        "severity": "low",
+        "source": " Air quality is generally good and these levels are considered safe for general population"
+      },
+      "value": {
+        "res": 0.11360657745404659
+      }
+    },
+    "population": {
+      "etc": {
+        "severity": "high",
+        "source": ": Often results in increased demand for resources, infrastructure, and services, fostering economic opportunities but requiring careful management to address challenges like congestion, housing, and environmental impact"
+      },
+      "value": 107052.3683180365
+    },
+    "so2": {
+      "etc": {
+        "severity": "low",
+        "source": "Elevated SO2 levels may indicate industrial processes or combustion of sulfur-containing fuels, potentially contributing to air pollution"
+      },
+      "value": 3.305562228234917e-05
+    },
+    "water": {
+      "value": {
+        "res": {
+          "lwe_thickness_csr": -0.7361488938331604
+        }
+      }
+    }
+  }
