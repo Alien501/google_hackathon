@@ -49,6 +49,8 @@ def get_all():
     ozone_stat = details.get_ozone_stat(ozone['res'])
     water = get_water(poly=poly)
     
+    veg_data = get_veg(point=poly, start_date=start_date_in, end_date=end_date_in)
+    
     return {
         'co': {'value': co, 'etc': co_stat},
         'so2': {'value': so2, 'etc': so2_stat},
@@ -56,7 +58,10 @@ def get_all():
         'formaldehyde': {'value': formal, 'etc': form_stat},
         'era5': {'value': era5, 'etc': 'NA'},
         'ozone': {'value': ozone, 'etc': ozone_stat},
-        'water': {'value': water}
+        'water': {'value': water},
+        'vegetation': {
+            'value': veg_data
+        }
     }
     
 
@@ -250,3 +255,50 @@ def get_water(poly):
     ).getInfo()
 
     return {'res': mean_value}
+
+
+def calculate_vegetation_indices(image):
+    # Calculate NDVI
+    ndvi = image.normalizedDifference(['B8', 'B4']).rename('NDVI')
+
+    # Calculate NDWI
+    ndwi = image.normalizedDifference(['B3', 'B8']).rename('NDWI')
+
+    # Calculate EVI
+    evi = image.expression(
+        '2.5 * ((NIR - RED) / (NIR + 6 * RED - 7.5 * BLUE + 1))', {
+            'NIR': image.select('B8'),
+            'RED': image.select('B4'),
+            'BLUE': image.select('B2')
+        }).rename('EVI')
+
+    return ndvi.addBands(ndwi).addBands(evi)
+
+def get_veg(point, start_date, end_date):
+    # point = ee.Geometry.Point(longitude, latitude)
+
+    # # Define date range
+    # start_date = '2022-01-01'
+    # end_date = '2022-01-31'
+
+    # Sentinel-2 data (Optical)
+    sentinel2 = ee.ImageCollection('COPERNICUS/S2') \
+        .filterBounds(point) \
+        .filterDate(start_date, end_date) \
+        .first()  # Select the first image in the collection
+
+    # Calculate vegetation indices
+    vegetation_indices_image = calculate_vegetation_indices(sentinel2)
+
+    # Extract values at the point of interest
+    vegetation_indices_values = vegetation_indices_image.reduceRegion(reducer=ee.Reducer.mean(), geometry=point, scale=10)
+    val1 = vegetation_indices_values.get('NDVI').getInfo()
+    val2 = vegetation_indices_values.get('NDWI').getInfo()
+    val3 = vegetation_indices_values.get('EVI').getInfo()
+    return {
+        'res': {
+            "NDVI Value": val1,
+            "NDWI Value": val2,
+            "EVI Value": val3 
+        }
+    }

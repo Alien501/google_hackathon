@@ -1,6 +1,8 @@
 import json
 
 def get_co_level(co_amount):
+    if co_amount == None:
+        co_amount = 0
     SOURCE_CO = 'The presence of CO, SO2, and formaldehyde could indicate pollution from sources like traffic, industry'
     stat = ''
     if co_amount > 0.2:
@@ -15,6 +17,8 @@ def get_co_level(co_amount):
     }
     
 def get_formaldehyde_level(fa_amount):
+    if fa_amount == None:
+        fa_amount = 0
     SOURCE_CO = 'Formaldehyde is a volatile organic compound that can be emitted from various sources, including combustion processes and certain industrial activities'
     stat = ''
     if fa_amount > 10:
@@ -29,6 +33,8 @@ def get_formaldehyde_level(fa_amount):
     }
     
 def get_so_level(so_amount):
+    if so_amount == None:
+        so_amount = 0
     SOURCE_CO = 'Elevated SO2 levels may indicate industrial processes or combustion of sulfur-containing fuels, potentially contributing to air pollution'
     stat = ''
     if so_amount > 0.01:
@@ -43,6 +49,8 @@ def get_so_level(so_amount):
     }
     
 def get_pop_level(po_amount):
+    if po_amount == None:
+        po_amount = 0
     SOURCE_CO = ''
     stat = ''
     if po_amount > 500:
@@ -60,6 +68,8 @@ def get_pop_level(po_amount):
     }
 
 def get_ozone_stat(oz_amount):
+    if oz_amount == None:
+        oz_amount = 0
     SOURCE_CO = ''
     stat = ''
     if oz_amount > 100:
