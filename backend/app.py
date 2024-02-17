@@ -377,20 +377,6 @@ def get_all():
 
     return get_new_data(latitude, longitude, start_date_in, end_date_in)
 
-'''
-co
-st
-pre
-wd
-forma
-ozone
-pop
-so2
-evi
-ndvi
-ndwi
-water
-'''
 
 def get_average_co_level(region):
     

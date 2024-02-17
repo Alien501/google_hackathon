@@ -7,6 +7,11 @@
   user-select: none;
 }
 
+body {
+  background-color: #e7e4ffc4;
+
+}
+
 :root {
   --color-primary: #5f48f4;
   --color-primary-1: #816eff;
