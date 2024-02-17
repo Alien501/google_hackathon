@@ -1,56 +1,201 @@
 {
-    "co": {
-      "etc": {
+  "co": {
+    "etc": {
+      "severity": "normal",
+      "source": "The presence of CO, SO2, and formaldehyde could indicate pollution from sources like traffic, industry"
+    },
+    "value": 0.047780553080211174
+  },
+  "era5": {
+    "etc": "NA",
+    "value": {
+      "res": {
+        "temperature": 1.1767428749486157,
+        "total_precipitation": 0.0013581420279012348,
+        "wind_direction": "East"
+      }
+    }
+  },
+  "formaldehyde": {
+    "etc": {
+      "severity": "low",
+      "source": "Formaldehyde is a volatile organic compound that can be emitted from various sources, including combustion processes and certain industrial activities"
+    },
+    "value": 0.00011456657342659141
+  },
+  "ozone": {
+    "etc": {
+      "severity": "low",
+      "source": " Air quality is generally good and these levels are considered safe for general population"
+    },
+    "value": {
+      "res": 0.13963791430409556
+    }
+  },
+  "plant_data": [
+    "Apples",
+    "Apricots",
+    "Blackberries",
+    "Tomato",
+    "Lettuce",
+    "Carrot"
+  ],
+  "population": {
+    "etc": {
+      "severity": "normal",
+      "source": "Strikes a balance between community resources and demand, supporting a mix of economic activities, infrastructure, and social services"
+    },
+    "value": 245.15034415301153
+  },
+  "so2": {
+    "etc": {
+      "severity": "normal",
+      "source": "Elevated SO2 levels may indicate industrial processes or combustion of sulfur-containing fuels, potentially contributing to air pollution"
+    },
+    "value": 0.00024554517028597874
+  },
+  "soil_data": {
+    "etc": {
+      "Sensible_heat_net_flux_surface_6_Hour_Average_stat": {
+        "severity": "low",
+        "source": "Represents the average net flux of sensible heat at the Earth's surface over a 6-hour period. Higher values indicate increased heat transfer from the surface to the atmosphere, while lower values suggest reduced heat transfer"
+      },
+      "Specific_humidity_height_above_ground_stat": {
+        "severity": "low",
+        "source": "Represents the specific humidity (moisture content) at a certain height above the ground. Higher values indicate higher moisture content in the air, while lower values suggest drier condition"
+      },
+      "Temperature_height_above_ground_stat": {
+        "severity": "low",
+        "source": "Represents the temperature at a certain height above the ground. Higher values indicate warmer temperatures, while lower values suggest cooler temperatures"
+      },
+      "Upward_Long_Wave_Radp_Flux_surface_6_Hour_Average_stat": {
         "severity": "normal",
-        "source": "The presence of CO, SO2, and formaldehyde could indicate pollution from sources like traffic, industry"
+        "source": "Represents the average upward long-wave radiation flux at the Earth's surface over a 6-hour period. Higher values indicate increased heat emitted from the Earth's surface, while lower values suggest reduced heat emission"
       },
-      "value": 0.03514418993330871
-    },
-    "era5": {
-      "etc": "NA",
-      "value": {
-        "res": {
-          "temperature": 298.82645481236796,
-          "total_precipitation": 0.0016209415393716054,
-          "wind_direction": "West"
-        }
-      }
-    },
-    "formaldehyde": {
-      "etc": {
-        "severity": "low",
-        "source": "Formaldehyde is a volatile organic compound that can be emitted from various sources, including combustion processes and certain industrial activities"
+      "Upward_Short_Wave_Radiation_Flux_surface_6_Hour_Average_stat": {
+        "severity": "normal",
+        "source": "Represents the average upward short-wave radiation flux at the Earth's surface over a 6-hour period. Higher values indicate increased sunlight reflected from the Earth's surface, while lower values suggest reduced sunlight reflection."
       },
-      "value": 3.463650203381777e-05
-    },
-    "ozone": {
-      "etc": {
-        "severity": "low",
-        "source": " Air quality is generally good and these levels are considered safe for general population"
+      "Volumetric_Soil_Moisture_Content_depth_below_surface_layer_150_cm_stat": {
+        "severity": "normal",
+        "source": "Represents the volumetric soil moisture content at a depth of 150cm below the surface layer. Higher values indicate higher soil moisture content, while lower values suggest drier soil conditions"
       },
-      "value": {
-        "res": 0.11360657745404659
-      }
-    },
-    "population": {
-      "etc": {
+      "Volumetric_Soil_Moisture_Content_depth_below_surface_layer_25_cm_stat": {
         "severity": "high",
-        "source": ": Often results in increased demand for resources, infrastructure, and services, fostering economic opportunities but requiring careful management to address challenges like congestion, housing, and environmental impact"
+        "source": "Represents the volumetric soil moisture content at a depth of 25cm below the surface layer. Higher values indicate higher soil moisture content, while lower values suggest drier soil conditions."
       },
-      "value": 107052.3683180365
-    },
-    "so2": {
-      "etc": {
-        "severity": "low",
-        "source": "Elevated SO2 levels may indicate industrial processes or combustion of sulfur-containing fuels, potentially contributing to air pollution"
+      "Volumetric_Soil_Moisture_Content_depth_below_surface_layer_5_cm_stat": {
+        "severity": "high",
+        "source": "Represents the volumetric soil moisture content at a depth of 5cm below the surface layer. Higher values indicate higher soil moisture content, while lower values suggest drier soil conditions"
       },
-      "value": 3.305562228234917e-05
+      "Volumetric_Soil_Moisture_Content_depth_below_surface_layer_70_cm_stat": {
+        "severity": "high",
+        "source": "Represents the volumetric soil moisture content at a depth of 70cm below the surface layer. : Higher values indicate higher soil moisture content, while lower values suggest drier soil conditions."
+      },
+      "u_component_of_wind_height_above_ground_stat": {
+        "severity": "high",
+        "source": "Represents the east-west component of wind velocity at a certain height above the ground. Positive values indicate eastward wind flow, while negative values suggest westward wind flow"
+      },
+      "v_component_of_wind_height_above_ground_stat": {
+        "severity": "normal",
+        "source": "Represents the north-south component of wind velocity at a certain height above the ground. Positive values indicate northward wind flow, while negative values suggest southward wind flow"
+      }
     },
-    "water": {
-      "value": {
-        "res": {
-          "lwe_thickness_csr": -0.7361488938331604
+    "value": {
+      "res": [
+        {
+          "Downward_Long-Wave_Radp_Flux_surface_6_Hour_Average": 279.86810203200866
+        },
+        {
+          "Downward_Short-Wave_Radiation_Flux_surface_6_Hour_Average": 124.06800596316732
+        },
+        {
+          "Geopotential_height_surface": 7.283279677581637
+        },
+        {
+          "Latent_heat_net_flux_surface_6_Hour_Average": 37.34717449573548
+        },
+        {
+          "Maximum_specific_humidity_at_2m_height_above_ground_6_Hour_Interval": 0.004486508774242517
+        },
+        {
+          "Maximum_temperature_height_above_ground_6_Hour_Interval": 278.74934301849504
+        },
+        {
+          "Minimum_specific_humidity_at_2m_height_above_ground_6_Hour_Interval": 0.003851255038064647
+        },
+        {
+          "Minimum_temperature_height_above_ground_6_Hour_Interval": 275.3193511812082
+        },
+        {
+          "Potential_Evaporation_Rate_surface_6_Hour_Average": 75.13827433513545
+        },
+        {
+          "Precipitation_rate_surface_6_Hour_Average": 3.378713781010495e-05
+        },
+        {
+          "Pressure_surface": 102535.42305173949
+        },
+        {
+          "Sensible_heat_net_flux_surface_6_Hour_Average": 5.736452822393995
+        },
+        {
+          "Specific_humidity_height_above_ground": 0.00415349383323937
+        },
+        {
+          "Temperature_height_above_ground": 277.120471544901
+        },
+        {
+          "u-component_of_wind_height_above_ground": 0.2416082489311424
+        },
+        {
+          "Upward_Long-Wave_Radp_Flux_surface_6_Hour_Average": 334.1174768469366
+        },
+        {
+          "Upward_Short-Wave_Radiation_Flux_surface_6_Hour_Average": 18.617749329729264
+        },
+        {
+          "v-component_of_wind_height_above_ground": -1.4056331777223887
+        },
+        {
+          "Volumetric_Soil_Moisture_Content_depth_below_surface_layer_5_cm": 0.35863299929098924
+        },
+        {
+          "Volumetric_Soil_Moisture_Content_depth_below_surface_layer_25_cm": 0.3607088901304307
+        },
+        {
+          "Volumetric_Soil_Moisture_Content_depth_below_surface_layer_70_cm": 0.3606587783353417
+        },
+        {
+          "Volumetric_Soil_Moisture_Content_depth_below_surface_layer_150_cm": 0.34510671364905254
         }
+      ]
+    }
+  },
+  "vegetation": {
+    "etc": {
+      "NDVI": {
+        "severity": "low",
+        "source": "Sparse or no vegetation cover. Often associated with barren land, deserts, urban areas, or water bodies"
+      },
+      "NDWI": {
+        "severity": "normal",
+        "source": "Moderate water content, including water bodies such as rivers, lakes, and wetlands. Also includes areas with some moisture in the soil or vegetation"
+      }
+    },
+    "value": {
+      "res": {
+        "EVI Value": 0.01394745676508789,
+        "NDVI Value": -0.0022599191384962912,
+        "NDWI Value": -0.0237010992812586
+      }
+    }
+  },
+  "water": {
+    "value": {
+      "res": {
+        "lwe_thickness_csr": -0.3799036145210266
       }
     }
   }
+}
