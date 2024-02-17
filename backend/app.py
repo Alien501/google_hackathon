@@ -9,9 +9,11 @@ import details
 import db
 import get_p
 
+from flask_cors import CORS
+
 app = Flask(__name__)
 ee.Authenticate()
-
+CORS(app)
 db.main()
 ee.Initialize(project='earth-engine-410402')
 
@@ -19,6 +21,11 @@ ee.Initialize(project='earth-engine-410402')
 @app.route('/')
 def main():
     return 'Hello World'
+
+@app.route('/download')
+def download():
+    res = db.get_all_data()
+    return {'data': res}   
 
 # Function to create a rectangular polygon around a point
 def create_polygon(latitude, longitude, buffer_size=1.0):

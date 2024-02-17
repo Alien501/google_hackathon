@@ -1,0 +1,14 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+  transition: .3s ease;
+  user-select: none;
+}
+
+:root {
+  --color-primary: #5f48f4;
+  --color-primary-1: #816eff;
+  --color-primary-2: #b1a4ff5d;
+}

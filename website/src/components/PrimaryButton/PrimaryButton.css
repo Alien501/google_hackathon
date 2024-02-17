@@ -1,0 +1,13 @@
+.primary-button {
+    width: 150px;
+    height: 45px;
+    border-radius: 25px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.primary-button:hover, .primary-button:active {
+    cursor: pointer;
+    scale: .9;
+}

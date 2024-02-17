@@ -1,0 +1,12 @@
+.header-container {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 60px;
+    display: grid;
+    place-items: center;
+    background-color: var(--color-primary);
+    box-shadow: 1px 5px 10px rgba(0, 0, 0, 0.1);
+    color: #fff;
+}
