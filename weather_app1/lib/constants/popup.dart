@@ -20,9 +20,11 @@ class PopupContent extends StatelessWidget {
       'Population': 'assets/pop1.png',
       'Ozone': 'assets/ozo.png',
       'SO2': 'assets/so2.png',
+      'NDVI': 'assets/ndvi.png',
+      'NDWI': 'assets/ndwi.png',
     };
 
-    return imagePaths[title] ?? 'assets/default_image.jpg';
+    return imagePaths[title] ?? 'assets/default_image.png';
   }
 
   @override

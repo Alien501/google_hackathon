@@ -94,6 +94,9 @@ flutter:
       - assets/temp.png
       - assets/humidity.png
       - assets/logo.png
+      - assets/default_image.png
+      - assets/ndvi.png
+      - assets/ndwi.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
