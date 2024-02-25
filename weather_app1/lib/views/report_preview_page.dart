@@ -13,6 +13,8 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share/share.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 
 class ReportPreviewPage extends StatefulWidget {
   final User user;
@@ -58,24 +60,31 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
     }
   }
 
-
   Future<void> _saveDataToFile() async {
     String jsonData = json.encode(data);
-    print(jsonData);
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String appDocPath = appDocDir.path;
-    File file = File('$appDocPath/report_data.json');
-    await file.writeAsString(jsonData);
-    OpenFile.open(file.path);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Data downloaded successfully'),
-      ),
-    );
-    print('File path: ${file.path}');
+    var status = await Permission.storage.status;
+    if (status.isDenied) {
+      await Permission.storage.request();
+    }
 
+    Directory? appDocDir = await getExternalStorageDirectory();
+    if (appDocDir != null) {
+      String appDocPath = appDocDir.path;
+      File file = File('$appDocPath/report_data.json');
+
+      await file.writeAsString(jsonData);
+      OpenFile.open(file.path);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Data downloaded successfully'),
+        ),
+      );
+      print('File path: ${file.path}');
+    } else {
+      print('Error getting external storage directory');
+    }
   }
-
 
 
   File? _image;
@@ -311,547 +320,612 @@ class _ReportPreviewPageState extends State<ReportPreviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    // print(data['soil_data']['value']['res'].length);
     return Scaffold(
-        backgroundColor: Color(0xff7461e5),
-        body: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(height: 20,),
-                Container(
-                  padding: EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Image.asset('assets/logo.png'),
-                      Text('Welcome \n${widget.user.displayName}',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.right,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10,),
-                Text(
-                  'Basic parameter for your location',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 10,),
-                SizedBox(height: 16.0),
-                Row(
+      backgroundColor: Color(0xff7461e5),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: 20,),
+              Container(
+                padding: EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      height: MediaQuery.sizeOf(context).width/2.3,
-                      width: MediaQuery.sizeOf(context).width/2.3,
-                      child: GestureDetector(
-                        onTap: () {
-                          print(data['co']['etc']);
-                          onPopupClick('CO', data['co']['etc']['source'], data['co']['value']);
-                        },
-                        child: Center(
+                    Image.asset('assets/logo.png'),
+                    Text('Welcome \n${widget.user.displayName}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.right,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 10,),
+              Text(
+                'Basic parameter for your location',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 10,),
+              SizedBox(height: 16.0),
+              Row(
+                children: [
+                  Container(
+                    height: MediaQuery.sizeOf(context).width/2.3,
+                    width: MediaQuery.sizeOf(context).width/2.3,
+                    child: GestureDetector(
+                      onTap: () {
+                        print(data['co']['etc']);
+                        onPopupClick('CO', data['co']['etc']['source'], data['co']['value']);
+                      },
+                      child: Center(
                         child: SeverityWidget(
                           severity: data['co']['etc']['severity'],
                           label: 'CO',
                         ),
                       ),
                     ),
-                    ),
-                    SizedBox(width: 16.0),
-                    Container(
-                      height: MediaQuery.sizeOf(context).width / 2.3,
-                      width: MediaQuery.sizeOf(context).width / 2.3,
-                      child: GestureDetector(
-                        onTap: () {
-                          onPopupClick('Formaldehyde', data['formaldehyde']['etc']['source'],data['formaldehyde']['value']);
-                        },
-                        child: Center(
+                  ),
+                  SizedBox(width: 16.0),
+                  Container(
+                    height: MediaQuery.sizeOf(context).width / 2.3,
+                    width: MediaQuery.sizeOf(context).width / 2.3,
+                    child: GestureDetector(
+                      onTap: () {
+                        onPopupClick('Formaldehyde', data['formaldehyde']['etc']['source'],data['formaldehyde']['value']);
+                      },
+                      child: Center(
                         child: SeverityWidget(
                           severity: data['formaldehyde']['etc']['severity'],
                           label: 'Formaldehyde',
                         ),
                       ),
                     ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Container(
-                      height: MediaQuery.sizeOf(context).width / 2.3,
-                      width: MediaQuery.sizeOf(context).width / 2.3,
-                      child: GestureDetector(
-                        onTap: () {
-                          onPopupClick('Ozone', data['ozone']['etc']['source'],data['ozone']['value']);
-                        },
-                        child: Center(
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                children: [
+                  Container(
+                    height: MediaQuery.sizeOf(context).width / 2.3,
+                    width: MediaQuery.sizeOf(context).width / 2.3,
+                    child: GestureDetector(
+                      onTap: () {
+                        onPopupClick('Ozone', data['ozone']['etc']['source'],data['ozone']['value']);
+                      },
+                      child: Center(
                         child: SeverityWidget(
                           severity: data['ozone']['etc']['severity'],
                           label: 'OZONE',
                         ),
                       ),
                     ),
-                    ),
-                    SizedBox(width: 16.0),
-                    Container(
-                      height: MediaQuery.sizeOf(context).width / 2.3,
-                      width: MediaQuery.sizeOf(context).width / 2.3,
-                      child: GestureDetector(
-                        onTap: () {
-                          onPopupClick('Population', data['population']['etc']['source'],data['population']['value']);
-                        },
-                        child: Center(
+                  ),
+                  SizedBox(width: 16.0),
+                  Container(
+                    height: MediaQuery.sizeOf(context).width / 2.3,
+                    width: MediaQuery.sizeOf(context).width / 2.3,
+                    child: GestureDetector(
+                      onTap: () {
+                        onPopupClick('Population', data['population']['etc']['source'],data['population']['value']);
+                      },
+                      child: Center(
                         child: SeverityWidget(
                           severity: data['population']['etc']['severity'],
                           label: 'Population',
                         ),
                       ),
                     ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Container(
-                      height: MediaQuery.sizeOf(context).width / 2.3,
-                      width: MediaQuery.sizeOf(context).width / 2.3,
-                      child: GestureDetector(
-                        onTap: () {
-                          onPopupClick('SO2', data['so2']['etc']['source'],data['so2']['value']);
-                        },
-                        child: Center(
+                  ),
+                ],
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                children: [
+                  Container(
+                    height: MediaQuery.sizeOf(context).width / 2.3,
+                    width: MediaQuery.sizeOf(context).width / 2.3,
+                    child: GestureDetector(
+                      onTap: () {
+                        onPopupClick('SO2', data['so2']['etc']['source'],data['so2']['value']);
+                      },
+                      child: Center(
                         child: SeverityWidget(
                           severity: data['so2']['etc']['severity'],
                           label: 'SO2',
                         ),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(width: 16.0),
+                  Stack(
+                    children: [
+                      Container(
+                        height: MediaQuery.sizeOf(context).width / 2.3,
+                        width: MediaQuery.sizeOf(context).width / 2.3,
+                        decoration: BoxDecoration(
+
+                          image: DecorationImage(
+                            image: AssetImage('assets/rainy-day.png'),
+                            fit: BoxFit.cover,
+                          ),
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                          child: Container(
+                            height: MediaQuery.sizeOf(context).width / 2.3,
+                            width: MediaQuery.sizeOf(context).width / 2.3,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.35),
+                              borderRadius: BorderRadius.circular(10.0),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2.0,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Precipitation rate:\n${doubleToStringAsFixed(data["soil_data"]["value"]["res"][9]["Precipitation_rate_surface_6_Hour_Average"], 6)} mm",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                ],
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        height: MediaQuery.sizeOf(context).width / 2.3,
+                        width: MediaQuery.sizeOf(context).width / 2.3,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/wind.png'),
+                            fit: BoxFit.cover,
+                          ),
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                          child: Container(
+                            height: MediaQuery.sizeOf(context).width / 2.3,
+                            width: MediaQuery.sizeOf(context).width / 2.3,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.35),
+                              borderRadius: BorderRadius.circular(10.0),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2.0,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Wind Speed: ${data["soil_data"]["etc"]["u_component_of_wind_height_above_ground_stat"]["severity"]}\nWind Direction: ${data["era5"]["value"]['res']["wind_direction"]}",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  SizedBox(width: 16.0),
+
+                  Stack(
+                    children: [
+                      Container(
+                        height: MediaQuery.sizeOf(context).width / 2.3,
+                        width: MediaQuery.sizeOf(context).width / 2.3,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/pressure.png'),
+                            fit: BoxFit.cover,
+                          ),
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                          child: Container(
+                            height: MediaQuery.sizeOf(context).width / 2.3,
+                            width: MediaQuery.sizeOf(context).width / 2.3,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.35),
+                              borderRadius: BorderRadius.circular(10.0),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2.0,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                'Pressure: \n${doubleToStringAsFixed(data["soil_data"]["value"]["res"][10]["Pressure_surface"], 2)} mm',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                ],
+              ),
+              SizedBox(height: 16.0),
+              Row(
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        height: MediaQuery.sizeOf(context).width / 2.3,
+                        width: MediaQuery.sizeOf(context).width / 2.3,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/temp.png'),
+                            fit: BoxFit.cover,
+                          ),
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                          child: Container(
+                            height: MediaQuery.sizeOf(context).width / 2.3,
+                            width: MediaQuery.sizeOf(context).width / 2.3,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.35),
+                              borderRadius: BorderRadius.circular(10.0),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2.0,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Temperature\n${doubleToStringAsFixed(data["soil_data"]["value"]["res"][13]["Temperature_height_above_ground"],2)} Kelvin",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(width: 16.0),
+                  Stack(
+                    children: [
+                      Container(
+                        height: MediaQuery.sizeOf(context).width / 2.3,
+                        width: MediaQuery.sizeOf(context).width / 2.3,
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: AssetImage('assets/humidity.png'),
+                            fit: BoxFit.cover,
+                          ),
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                          child: Container(
+                            height: MediaQuery.sizeOf(context).width / 2.3,
+                            width: MediaQuery.sizeOf(context).width / 2.3,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.35),
+                              borderRadius: BorderRadius.circular(10.0),
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 2.0,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                "Specific Humidity:\n${doubleToStringAsFixed(data["soil_data"]["value"]["res"][12]["Specific_humidity_height_above_ground"],5)} kg/kg",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SizedBox(height: 30,),
+              Text(
+                "Plants that can be grown",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Container(
+                height: MediaQuery.sizeOf(context).height / 2,
+                width: MediaQuery.sizeOf(context).width,
+                child: Column(
+                  children: List.generate(data['plant_data'].length, (index) {
+                    String plantName = data['plant_data'][index];
+                    String imageUrl = getPlantImageUrl(plantName);
+
+                    return Card(
+                      elevation: 5.0,
+                      margin: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: ListTile(
+                        title: Text(
+                          plantName,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 20.0,
+                          ),
+                        ),
+                        leading: ClipRRect(
+                          borderRadius: BorderRadius.circular(5.0),
+                          child: Image.network(
+                            imageUrl,
+                            width: 50.0,
+                            height: 50.0,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+
+
+              Text(
+                "Vegetation Details",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.bold,
+                ),
+
+              ),
+              Container(
+                height: MediaQuery.sizeOf(context).height / 3,
+                width: MediaQuery.sizeOf(context).width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        onPopupClick('NDVI', data['vegetation']['etc']['NDVI']['source'], data['vegetation']['value']['res']['NDVI Value']);
+                      },
+                      child: Center(
+                        child: SeverityWidget(
+                          severity: data['vegetation']['etc']['NDVI']['severity'],
+                          label: 'NDVI',
                         ),
                       ),
                     ),
-      
-                    SizedBox(width: 16.0),
-                    Stack(
-                      children: [
-                        Container(
-                          height: MediaQuery.sizeOf(context).width / 2.3,
-                          width: MediaQuery.sizeOf(context).width / 2.3,
-                          decoration: BoxDecoration(
-
-                            image: DecorationImage(
-                              image: AssetImage('assets/rainy-day.png'),
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
+                    GestureDetector(
+                      onTap: () {
+                        onPopupClick('NDWI', data['vegetation']['etc']['NDWI']['source'], data['vegetation']['value']['res']['NDWI Value']);
+                      },
+                      child: Center(
+                        child: SeverityWidget(
+                          severity: data['vegetation']['etc']['NDWI']['severity'],
+                          label: 'NDWI',
                         ),
-
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10.0),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                            child: Container(
-                              height: MediaQuery.sizeOf(context).width / 2.3,
-                              width: MediaQuery.sizeOf(context).width / 2.3,
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.35),
-                                borderRadius: BorderRadius.circular(10.0),
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2.0,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "Precipitation rate:\n${doubleToStringAsFixed(data["soil_data"]["value"]["res"][9]["Precipitation_rate_surface_6_Hour_Average"], 6)} mm",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                  ],
-                ),
-                SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Stack(
-                      children: [
-                        Container(
-                          height: MediaQuery.sizeOf(context).width / 2.3,
-                          width: MediaQuery.sizeOf(context).width / 2.3,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/wind.png'),
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10.0),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                            child: Container(
-                              height: MediaQuery.sizeOf(context).width / 2.3,
-                              width: MediaQuery.sizeOf(context).width / 2.3,
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.35),
-                                borderRadius: BorderRadius.circular(10.0),
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2.0,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "Wind Speed: ${data["soil_data"]["etc"]["u_component_of_wind_height_above_ground_stat"]["severity"]}\nWind Direction: ${data["era5"]["value"]['res']["wind_direction"]}",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(width: 16.0),
-
-                    Stack(
-                      children: [
-                        Container(
-                          height: MediaQuery.sizeOf(context).width / 2.3,
-                          width: MediaQuery.sizeOf(context).width / 2.3,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/pressure.png'),
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10.0),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                            child: Container(
-                              height: MediaQuery.sizeOf(context).width / 2.3,
-                              width: MediaQuery.sizeOf(context).width / 2.3,
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.35),
-                                borderRadius: BorderRadius.circular(10.0),
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2.0,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Pressure: \n${doubleToStringAsFixed(data["soil_data"]["value"]["res"][10]["Pressure_surface"], 2)} mm',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                  ],
-                ),
-                SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Stack(
-                      children: [
-                        Container(
-                          height: MediaQuery.sizeOf(context).width / 2.3,
-                          width: MediaQuery.sizeOf(context).width / 2.3,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/temp.png'),
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10.0),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                            child: Container(
-                              height: MediaQuery.sizeOf(context).width / 2.3,
-                              width: MediaQuery.sizeOf(context).width / 2.3,
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.35),
-                                borderRadius: BorderRadius.circular(10.0),
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2.0,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "Temperature\n${doubleToStringAsFixed(data["soil_data"]["value"]["res"][13]["Temperature_height_above_ground"],2)} Kelvin",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(width: 16.0),
-                    Stack(
-                      children: [
-                        Container(
-                          height: MediaQuery.sizeOf(context).width / 2.3,
-                          width: MediaQuery.sizeOf(context).width / 2.3,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/humidity.png'),
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(10.0),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                            child: Container(
-                              height: MediaQuery.sizeOf(context).width / 2.3,
-                              width: MediaQuery.sizeOf(context).width / 2.3,
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.35),
-                                borderRadius: BorderRadius.circular(10.0),
-                                border: Border.all(
-                                  color: Colors.white,
-                                  width: 2.0,
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "Specific Humidity:\n${doubleToStringAsFixed(data["soil_data"]["value"]["res"][12]["Specific_humidity_height_above_ground"],5)} kg/kg",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
-                SizedBox(height: 30,),
-                Text(
-                  "Plants that can be grown",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Container(
-                  height: MediaQuery.sizeOf(context).height / 2,
-                  width: MediaQuery.sizeOf(context).width,
-                  child: Column(
-                    children: List.generate(data['plant_data'].length, (index) {
-                      String plantName = data['plant_data'][index];
-                      String imageUrl = getPlantImageUrl(plantName);
+              ),
 
-                      return Card(
-                        elevation: 5.0,
-                        margin: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            plantName,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20.0,
+
+              SizedBox(height: 20,),
+              Column(
+                children: [
+                  // Previous widgets...
+
+                  SizedBox(height: 20),
+                  Text(
+                    "Advance Parameters",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  //SliverGridDelegateWithFixedCrossAxisCount
+
+                  Container(
+                    height: MediaQuery.sizeOf(context).height / 2,
+                    width: MediaQuery.sizeOf(context).width,
+                    child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 1,
+                          childAspectRatio: MediaQuery.of(context).size.width /
+                              (MediaQuery.of(context).size.height /7.9)
+                      ),
+                      itemCount: data['soil_data']['value']['res'].length,
+                      itemBuilder: (BuildContext context, int index) {
+                        String paramName = data['soil_data']['value']['res'][index].keys.first;
+                        double paramValue = data['soil_data']['value']['res'][index][paramName];
+
+                        return Card(
+                          color: Colors.white,
+                          elevation: 5.0,
+                          margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(50.0),
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              "${paramName.replaceAll('_', ' ')}: ${paramValue.toStringAsFixed(5)}",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 17.0,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            onTap: () {
+                              onPopupClick(paramName.replaceAll('_', ' '), "", paramValue);
+                            },
+                          ),
+                          // ),
+                        );
+
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20,),
+
+
+              DropdownButton<String>(
+                value: 'Share your moment',
+                onChanged: (String? newValue) {
+                  if (newValue == 'Take a picture') {
+                    _getImageFromCamera();
+                  } else if (newValue == 'Share Captured Image') {
+                    _shareImage();
+                  }
+                },
+                items: ['Share your moment', 'Take a picture', 'Share Captured Image']
+                    .map((String option) {
+                  return DropdownMenuItem<String>(
+                    value: option,
+                    child: Text(option),
+                  );
+                }).toList(),
+                icon: Icon(Icons.arrow_drop_down, color: Colors.white),
+              ),
+
+              SizedBox(height: 16.0),
+
+              if (_image != null)
+                Screenshot(
+                  key: screenshotKey,
+                  controller: screenshotController,
+                  child:Container(
+                    height: MediaQuery.of(context).size.height/2.5,
+                    width: MediaQuery.of(context).size.width/2.5,
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Container(
+                            height: MediaQuery.of(context).size.height,
+                            width: MediaQuery.of(context).size.width,
+                            child: Image.asset(
+                              'assets/custom_frame.png',
+                              fit: BoxFit.contain,
                             ),
                           ),
-                          leading: ClipRRect(
-                            borderRadius: BorderRadius.circular(5.0),
-                            child: Image.network(
-                              imageUrl,
-                              width: 50.0,
-                              height: 50.0,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
                         ),
-                      );
-                    }),
-                  ),
-                ),
-
-
-                Text(
-                  "Vegetation Details",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Container(
-                  height: MediaQuery.sizeOf(context).height / 3,
-                  width: MediaQuery.sizeOf(context).width,
-                  child: Column(
-                    children: List.generate(data['vegetation']['value']['res'].length, (index) {
-                      String propertyName = data['vegetation']['value']['res'].keys.toList()[index];
-                      String propertyValue = data['vegetation']['value']['res'][propertyName].toString();
-                      return Card(
-                        elevation: 5.0,
-                        margin: EdgeInsets.symmetric(vertical: 2.0, horizontal: 4.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            "$propertyName: $propertyValue",
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20.0,
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-                SizedBox(height: 20,),
-                DropdownButton<String>(
-                  value: 'Share your moment',
-                  onChanged: (String? newValue) {
-                    if (newValue == 'Take a picture') {
-                      _getImageFromCamera();
-                    } else if (newValue == 'Share Captured Image') {
-                      _shareImage();
-                    }
-                  },
-                  items: ['Share your moment', 'Take a picture', 'Share Captured Image']
-                      .map((String option) {
-                    return DropdownMenuItem<String>(
-                      value: option,
-                      child: Text(option),
-                    );
-                  }).toList(),
-                  icon: Icon(Icons.arrow_drop_down, color: Colors.white),
-                ),
-
-                SizedBox(height: 16.0),
-
-                if (_image != null)
-                  Screenshot(
-                    key: screenshotKey,
-                    controller: screenshotController,
-                    child:Container(
-                      height: MediaQuery.of(context).size.height/2.5,
-                      width: MediaQuery.of(context).size.width/2.5,
-                      child: Stack(
-                        children: [
-                          Positioned.fill(
-                            child: Container(
-                              height: MediaQuery.of(context).size.height,
-                              width: MediaQuery.of(context).size.width,
-                              child: Image.asset(
-                                'assets/custom_frame.png',
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            height: MediaQuery.of(context).size.height / 3.5,
+                            width: MediaQuery.of(context).size.width,
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 75.0),
+                              child: Image.file(
+                                _image!,
                                 fit: BoxFit.contain,
                               ),
                             ),
                           ),
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              height: MediaQuery.of(context).size.height / 3.5,
-                              width: MediaQuery.of(context).size.width,
-                              child: Padding(
-                                padding: EdgeInsets.only(top: 75.0),
-                                child: Image.file(
-                                  _image!,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                SizedBox(height: 20,),
-                Column(
-                  children: [
-                    FloatingActionButton(
-                      onPressed: () async {
-                        await _saveDataToFile();
-                      },
-                      child: Icon(Icons.download),
-                    ),
-                    SizedBox(height: 8.0),
-                    Text(
-                      "Download Data",
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
                 ),
+              SizedBox(height: 20,),
+              Column(
+                children: [
+                  FloatingActionButton(
+                    onPressed: () async {
+                      await _saveDataToFile();
+                    },
+                    child: Icon(Icons.download),
+                  ),
+                  SizedBox(height: 8.0),
+                  Text(
+                    "Download Data",
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
 
-              ],
+            ],
 
-            ),
           ),
         ),
-
-
-      );
+      ),
+    );
   }
 }
-
-

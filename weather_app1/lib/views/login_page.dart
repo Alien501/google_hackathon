@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
 
                   print('Signed in as ${user?.displayName}');
                   if (user != null) {
-                    Navigator.push(context,MaterialPageRoute(builder: (context) => ReportPreviewPage(user: user)),);
+                    Navigator.push(context,MaterialPageRoute(builder: (context) => ReportPreviewPage(user: user,),),);
                   }
                 } catch (e) {
                   print(e);
